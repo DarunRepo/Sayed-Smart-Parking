@@ -35,13 +35,13 @@ Requires Python 3.9 or newer (developed on 3.12).
 
 ## Choosing a detection method
 
-| Script | Slot detection | Manual setup | Best for |
-|---|---|---|---|
-| `smart_parking_simple.py` | Grid built from detected vehicles | None | Demos and presentations |
-| `smart_parking_detection.py` | Hand-drawn slot polygons | Click-to-define GUI | Precise slot boundaries |
-| `smart_parking_auto.py` | Hybrid (lines + vehicles) | None | Quick automated analysis |
-| `smart_parking_lines.py` | White line-marking detection | None (optional `--debug`) | Lots with visible painted lines |
-| `smart_parking_lines_video.py` | Same as `lines`, on video frames | None | Trying the line method on video |
+| Script                         | Slot detection                    | Manual setup              | Best for                        |
+| ------------------------------ | --------------------------------- | ------------------------- | ------------------------------- |
+| `smart_parking_simple.py`      | Grid built from detected vehicles | None                      | Demos and presentations         |
+| `smart_parking_detection.py`   | Hand-drawn slot polygons          | Click-to-define GUI       | Precise slot boundaries         |
+| `smart_parking_auto.py`        | Hybrid (lines + vehicles)         | None                      | Quick automated analysis        |
+| `smart_parking_lines.py`       | White line-marking detection      | None (optional `--debug`) | Lots with visible painted lines |
+| `smart_parking_lines_video.py` | Same as `lines`, on video frames  | None                      | Trying the line method on video |
 
 ## Contributing
 
@@ -66,12 +66,12 @@ MIT. See [LICENSE](LICENSE).
 
 ## Dependencies
 
-| Package | Purpose |
-|---|---|
-| `opencv-python` (cv2) | Image processing, drawing, morphological operations |
-| `ultralytics` (YOLO) | YOLOv8 object detection model |
-| `numpy` | Numerical operations, array handling |
-| `scikit-learn` | DBSCAN clustering (used by `smart_parking_lines.py`) |
+| Package               | Purpose                                              |
+| --------------------- | ---------------------------------------------------- |
+| `opencv-python` (cv2) | Image processing, drawing, morphological operations  |
+| `ultralytics` (YOLO)  | YOLOv8 object detection model                        |
+| `numpy`               | Numerical operations, array handling                 |
+| `scikit-learn`        | DBSCAN clustering (used by `smart_parking_lines.py`) |
 
 All scripts default to `yolov8n.pt` in the repository root.
 
@@ -84,6 +84,7 @@ All scripts default to `yolov8n.pt` in the repository root.
 **Purpose:** The simplest and most reliable version. Optimized for live presentations and demos where consistent, predictable results matter most.
 
 **How it works:**
+
 1. Detects all vehicles in the image using YOLOv8 (confidence threshold: 0.25)
 2. Groups detected vehicles into horizontal rows by clustering their Y-coordinates
 3. Calculates the median vehicle size and uses it to define a uniform slot grid (1.25x the median vehicle dimensions)
@@ -91,6 +92,7 @@ All scripts default to `yolov8n.pt` in the repository root.
 5. Checks each slot for occupancy using center-point containment and bounding-box overlap (20% threshold)
 
 **Usage:**
+
 ```bash
 python smart_parking_simple.py <image_path>
 ```
@@ -108,10 +110,12 @@ python smart_parking_simple.py <image_path>
 **Three modes:**
 
 **Mode 1: Vehicle detection (default)**
+
 - Runs YOLOv8 on the input image and draws bounding boxes around all detected vehicles (cars, motorcycles, buses, trucks)
 - Displays a stats panel with vehicle count and breakdown by type
 
 **Mode 2: Interactive slot definition (`--define`)**
+
 - Opens the image in a GUI window where you click to define parking slot polygons
 - Click 4 corners per slot, then press `n` to confirm
 - Keyboard controls:
@@ -122,11 +126,13 @@ python smart_parking_simple.py <image_path>
   - `q`: quit
 
 **Mode 3: Slot-based detection (`--config`)**
+
 - Loads a previously saved slot configuration (JSON file with polygon coordinates)
 - Runs YOLO detection and checks each predefined slot for vehicle overlap (30% threshold)
 - Colors slots green (available) or red (occupied) with a semi-transparent overlay
 
 **Usage:**
+
 ```bash
 # Detect vehicles only
 python smart_parking_detection.py parking_lot.jpg
@@ -149,6 +155,7 @@ python smart_parking_detection.py parking_lot.jpg --config slots.json
 **Purpose:** Automatically detects parking slots without any manual input by analyzing vehicle positions and parking lot line markings.
 
 **How it works:**
+
 1. Detects vehicles using YOLOv8 (confidence threshold: 0.25)
 2. Estimates slot dimensions from average detected vehicle sizes (1.25x multiplier)
 3. Attempts automatic slot detection using one of three methods:
@@ -159,6 +166,7 @@ python smart_parking_detection.py parking_lot.jpg --config slots.json
 5. Falls back to vehicle-only mode if no slots can be detected
 
 **Usage:**
+
 ```bash
 python smart_parking_auto.py <image_path>
 ```
@@ -174,6 +182,7 @@ python smart_parking_auto.py <image_path>
 **Purpose:** The most advanced approach. Detects parking slots by finding white painted line markings on the pavement, then checks for vehicle occupancy.
 
 **How it works:**
+
 1. **White line detection** using three combined methods: HSV color filtering, grayscale thresholding (brightness > 200), and adaptive Gaussian thresholding
 2. **Line segment detection** with Canny edge detection followed by a Probabilistic Hough Transform
 3. **Line classification** into vertical (slot dividers, 60-120 degrees) and horizontal (row boundaries, 0-30 degrees)
@@ -182,6 +191,7 @@ python smart_parking_auto.py <image_path>
 6. **Vehicle matching**: YOLO detection (confidence threshold 0.15 for better recall), matched to slots by overlap ratio (15% threshold) and center containment
 
 **Usage:**
+
 ```bash
 python smart_parking_lines.py <image_path>
 python smart_parking_lines.py <image_path> --debug
@@ -200,30 +210,31 @@ python smart_parking_lines.py <image_path> --debug
 **Purpose:** Runs the line-based detector on frames sampled from a video (for example `CarPark.mp4`). It adds no new detection method: it samples every Nth frame, saves it, and passes it to `LineParkingDetector`.
 
 **Usage:**
+
 ```bash
 python smart_parking_lines_video.py CarPark.mp4
 python smart_parking_lines_video.py CarPark.mp4 --stride 60 --max_frames 10
 python smart_parking_lines_video.py CarPark.mp4 --display
 ```
 
-| Option | Default | Description |
-|---|---|---|
-| `--stride` | 60 | Process every Nth frame |
-| `--max_frames` | 5 | Maximum number of frames to process |
-| `--display` | off | Show a live window with annotated frames |
+| Option         | Default | Description                              |
+| -------------- | ------- | ---------------------------------------- |
+| `--stride`     | 60      | Process every Nth frame                  |
+| `--max_frames` | 5       | Maximum number of frames to process      |
+| `--display`    | off     | Show a live window with annotated frames |
 
 ---
 
 ## Other files
 
-| File | Description |
-|---|---|
-| `slots.json` | Example slot configuration with polygon-defined parking spaces (created with `--define` in `smart_parking_detection.py`) |
-| `yolov8n.pt` | Pre-trained YOLOv8 nano model weights (COCO dataset) |
-| `CarPark.mp4`, `CarPark_frame_00450.jpg` | Sample video and a frame from it |
-| `parking_lot.jpg`, `parking_lot_2.jpg`, `sample_parking.jpg`, `sample_parkingv2.jpg` | Sample parking lot images for testing |
-| `result.jpg`, `detection_result.jpg` | Example output images |
-| `DETECTION_METHODS_DOCUMENTATION.md` | Longer write-up of the detection methods |
+| File                                                                                 | Description                                                                                                              |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `slots.json`                                                                         | Example slot configuration with polygon-defined parking spaces (created with `--define` in `smart_parking_detection.py`) |
+| `yolov8n.pt`                                                                         | Pre-trained YOLOv8 nano model weights (COCO dataset)                                                                     |
+| `CarPark.mp4`, `CarPark_frame_00450.jpg`                                             | Sample video and a frame from it                                                                                         |
+| `parking_lot.jpg`, `parking_lot_2.jpg`, `sample_parking.jpg`, `sample_parkingv2.jpg` | Sample parking lot images for testing                                                                                    |
+| `result.jpg`, `detection_result.jpg`                                                 | Example output images                                                                                                    |
+| `DETECTION_METHODS_DOCUMENTATION.md`                                                 | Longer write-up of the detection methods                                                                                 |
 
 ## Typical workflow
 
